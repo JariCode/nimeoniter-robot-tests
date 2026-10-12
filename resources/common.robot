@@ -230,3 +230,29 @@ Reload Game
     ...    user interface shows the game state just seeded in the database.
     Reload
     Wait For Game To Load
+
+
+Get Task Catalog
+    [Documentation]    Returns the task catalog from the backend's public game rules.
+    ${config}=    GET    ${BACKEND_URL}/api/config
+    RETURN    ${config.json()}[taskCatalog]
+
+Catalog Task
+    [Documentation]    Returns a task from the backend's public task catalog by key.
+    [Arguments]    ${key}
+    ${catalog}=    Get Task Catalog
+    ${task}=    Evaluate    [t for t in $catalog if t['key'] == $key][0]
+    RETURN    ${task}
+
+Achievement Rewards
+    [Documentation]    Returns the summed XP and resource rewards of the given
+    ...    achievement ids, taken from the backend's public achievement list.
+    [Arguments]    ${ids}
+    ${config}=    GET    ${BACKEND_URL}/api/config
+    ${earned}=    Evaluate    [a for a in $config.json()['achievements'] if a['id'] in $ids]
+    ${total}=    Create Dictionary
+    FOR    ${key}    IN    xp    wood    stone    food
+        ${sum}=    Evaluate    sum(a['reward'].get('${key}', 0) for a in $earned)
+        Set To Dictionary    ${total}    ${key}=${sum}
+    END
+    RETURN    ${total}
