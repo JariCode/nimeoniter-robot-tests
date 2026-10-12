@@ -9,6 +9,7 @@ Library    RequestsLibrary
 Library    String
 Library    Collections
 Library    PlayerStateSeed.py
+Library    ParallelRequests.py
 Variables    settings.py
 
 
