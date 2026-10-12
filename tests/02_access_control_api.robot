@@ -381,23 +381,3 @@ Economy And Tasks Should Be Unchanged
         Should Be Equal    ${after}[${field}]    ${before}[${field}]
         ...    msg=${field} changed: ${before}[${field}] -> ${after}[${field}]
     END
-
-Catalog Task
-    [Documentation]    Returns a task from the backend's public task catalog by key.
-    [Arguments]    ${key}
-    ${config}=    GET    ${BACKEND_URL}/api/config
-    ${task}=    Evaluate    [t for t in $config.json()['taskCatalog'] if t['key'] == $key][0]
-    RETURN    ${task}
-
-Achievement Rewards
-    [Documentation]    Returns the summed XP and resource rewards of the given
-    ...    achievement ids, taken from the backend's public achievement list.
-    [Arguments]    ${ids}
-    ${config}=    GET    ${BACKEND_URL}/api/config
-    ${earned}=    Evaluate    [a for a in $config.json()['achievements'] if a['id'] in $ids]
-    ${total}=    Create Dictionary
-    FOR    ${key}    IN    xp    wood    stone    food
-        ${sum}=    Evaluate    sum(a['reward'].get('${key}', 0) for a in $earned)
-        Set To Dictionary    ${total}    ${key}=${sum}
-    END
-    RETURN    ${total}
