@@ -4,7 +4,8 @@ Documentation    Shared variables and keywords for the Nimeoniter tests.
 ...    backend running. Settings and credentials are read from the .env file
 ...    (resources/settings.py). Game states are seeded straight into the test
 ...    database with resources/PlayerStateSeed.py.
-Library    Browser
+# BrowserExtensions.js adds keywords that intercept the page's network requests
+Library    Browser    jsextension=${CURDIR}/BrowserExtensions.js
 Library    RequestsLibrary
 Library    String
 Library    Collections
