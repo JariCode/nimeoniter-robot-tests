@@ -45,22 +45,25 @@ Close Session
 Enter Verification Code If Asked
     [Documentation]    Clerk asks for an email code when signing up ("Verify your
     ...    email") or when signing in from a new device ("Check your email").
-    ...    Every Robot session looks like a new device. The code is typed only
-    ...    once Clerk has sent it, which shows as the "Resend (30)" countdown.
-    ...    If Clerk has not sent the code (the plain "Resend" link is shown, or
-    ...    Clerk answers "You need to send a verification code"), the code is
-    ...    sent with the Resend link and typed again, up to three times. The test
-    ...    code comes from the .env file and only works for +clerk_test addresses
-    ...    in Clerk's development instance.
+    ...    Every Robot session looks like a new device. The code is typed once
+    ...    Clerk shows the "Resend (30)" countdown, which means the code has been
+    ...    sent. Sometimes Clerk has not really sent it (it answers "You need to
+    ...    send a verification code before attempting to verify"); then the test
+    ...    waits until the Resend button can be used, asks for a new code with it
+    ...    and types the code again, up to three times. The test code comes from
+    ...    the .env file and only works for +clerk_test addresses in Clerk's
+    ...    development instance.
     [Arguments]    ${code}=${CLERK_TEST_CODE}
     ${asked}=    Run Keyword And Return Status
     ...    Wait For Elements State    text=/Check your email|Verify your email/    visible    timeout=5s
     IF    not ${asked}    RETURN
+    ${resend}=    Set Variable    css=button:has-text("Resend")
     FOR    ${attempt}    IN RANGE    3
         ${sent}=    Run Keyword And Return Status
         ...    Wait For Elements State    text=/Resend \\(\\d+\\)/    visible    timeout=10s
         IF    not ${sent}
-            Click    .cl-formResendCodeLink
+            Wait For Elements State    ${resend}    enabled    timeout=40s
+            Click    ${resend}
             Wait For Elements State    text=/Resend \\(\\d+\\)/    visible    timeout=15s
         END
         Wait For Load State    networkidle    timeout=10s
@@ -69,7 +72,9 @@ Enter Verification Code If Asked
         ${refused}=    Run Keyword And Return Status
         ...    Wait For Elements State    text=/send a verification code before/    visible    timeout=3s
         IF    not ${refused}    RETURN
-        Log    Clerk had not sent the code yet (attempt ${attempt}), sending it again    WARN
+        Log    Clerk had not sent the code yet (attempt ${attempt}), asking for a new one    WARN
+        Wait For Elements State    ${resend}    enabled    timeout=40s
+        Click    ${resend}
     END
     Fail    Clerk did not accept the verification code after three attempts
 

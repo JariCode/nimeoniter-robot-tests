@@ -310,20 +310,6 @@ Unknown routes return a clean 404
     ${response}=    Signed In Request    GET    /api/../../etc/passwd
     Should Be Equal As Integers    ${response.status_code}    404
 
-General rate limit returns 429
-    [Documentation]    TC03-018. Expected result: when one IP address sends more than
-    ...    100 requests within a minute, the next request returns 429 with the
-    ...    rate-limit headers. Needs the backend's original limit (100 per minute),
-    ...    so it is excluded from normal runs and run separately.
-    [Tags]    api    security    rate-limit
-    FOR    ${i}    IN RANGE    110
-        ${response}=    GET    ${BACKEND_URL}/api/config    expected_status=any
-        IF    ${response.status_code} == 429    BREAK
-    END
-    Should Be Equal As Integers    ${response.status_code}    429
-    ...    msg=No 429 after 110 requests. Is the backend running with the original limit of 100?
-    Should Be Equal    ${response.headers}[RateLimit-Limit]    100
-
 AI rate limit returns 429 per player
     [Documentation]    TC03-019. Expected result: when a player sends more than 20
     ...    companion requests within 10 minutes, the 21st returns 429 with a friendly
@@ -331,7 +317,8 @@ AI rate limit returns 429 per player
     ...    through. The requests use an unknown mode, which the limiter counts but
     ...    the backend rejects before any OpenAI call, so nothing is paid. A
     ...    temporary player is used so the standard account is not locked.
-    ...    Tagged rate-limit: it needs the backend's original AI limit (20).
+    ...    Tagged rate-limit: it needs the backend's original AI limit (20). It
+    ...    runs before TC03-018, which uses up the general limit for a minute.
     [Tags]    api    security    rate-limit
     ${temp_context}=    New Context    viewport={'width': 1280, 'height': 900}
     Set Test Variable    ${TEMP_CONTEXT}    ${temp_context}
@@ -350,6 +337,20 @@ AI rate limit returns 429 per player
     Should Be Equal As Integers    ${other.status_code}    400
     ...    msg=The other player was also limited (${other.status_code}), so the limit is not per player
     [Teardown]    Remove Temporary Player
+
+General rate limit returns 429
+    [Documentation]    TC03-018. Expected result: when one IP address sends more than
+    ...    100 requests within a minute, the next request returns 429 with the
+    ...    rate-limit headers. Needs the backend's original limit (100 per minute),
+    ...    so it is excluded from normal runs and run separately.
+    [Tags]    api    security    rate-limit
+    FOR    ${i}    IN RANGE    110
+        ${response}=    GET    ${BACKEND_URL}/api/config    expected_status=any
+        IF    ${response.status_code} == 429    BREAK
+    END
+    Should Be Equal As Integers    ${response.status_code}    429
+    ...    msg=No 429 after 110 requests. Is the backend running with the original limit of 100?
+    Should Be Equal    ${response.headers}[RateLimit-Limit]    100
 
 Error responses do not reveal internals
     [Documentation]    TC03-020. Expected result: error responses (invalid input,
