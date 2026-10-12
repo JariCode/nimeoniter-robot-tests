@@ -33,3 +33,23 @@ class ParallelRequests:
 
         with ThreadPoolExecutor(max_workers=count) as pool:
             return list(pool.map(send, range(count)))
+
+
+    @keyword
+    def send_different_requests_in_parallel(self, token, requests_to_send):
+        """Sends several different requests at once and returns their status codes.
+
+        ``requests_to_send`` is a list of ``[method, url, body]`` entries. The
+        status codes are returned in the same order as the requests.
+        """
+        headers = {"Authorization": f"Bearer {token}"}
+        barrier = threading.Barrier(len(requests_to_send))
+
+        def send(entry):
+            method, url, body = entry
+            barrier.wait()
+            response = requests.request(method, url, headers=headers, json=body, timeout=30)
+            return response.status_code
+
+        with ThreadPoolExecutor(max_workers=len(requests_to_send)) as pool:
+            return list(pool.map(send, requests_to_send))
