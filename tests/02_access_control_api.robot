@@ -239,16 +239,20 @@ Two simultaneous first loads create only one game state
 
 Token of a deleted player is rejected
     [Documentation]    TC02-010. Expected result: when player B deletes their account,
-    ...    B's still-unexpired session token is rejected (401) before it would have
-    ...    expired on its own, and the Clerk webhook removes B's game state. The test
-    ...    checks that the rejection happens inside the token's lifetime, so expiry
-    ...    does not hide the result. This test deletes player B, so it runs last.
+    ...    the Clerk webhook removes B's game state. After that, B's still-unexpired
+    ...    session token is rejected (401) and the game state is not created again.
+    ...    The test checks that the request is made inside the token's lifetime, so
+    ...    expiry does not hide the result. A Clerk token stays valid for about one
+    ...    minute by design; until the webhook arrives it can only reach B's own
+    ...    game state, which the webhook then removes. This test deletes player B,
+    ...    so it runs last.
     [Tags]    api    security
     Switch To Player    B
     ${token}=    Get Session Token
     ${expires}=    Token Expiry Time    ${token}
     Delete Account In App
     Set Suite Variable    ${B_DELETED}    ${True}
+    Wait Until Keyword Succeeds    30s    2s    Player State Should Not Exist    ${B_USER_ID}
     ${headers}=    Create Dictionary    Authorization=Bearer ${token}
     ${response}=    GET    ${BACKEND_URL}/api/state    headers=${headers}    expected_status=any
     ${now}=    Evaluate    time.time()    modules=time
@@ -256,7 +260,7 @@ Token of a deleted player is rejected
     ...    msg=The token expired before the check, so the result proves nothing. Run the test again.
     Should Be Equal As Integers    ${response.status_code}    401
     ...    msg=The deleted player's unexpired token was accepted (${response.status_code})
-    Wait Until Keyword Succeeds    30s    2s    Player State Should Not Exist    ${B_USER_ID}
+    Player State Should Not Exist    ${B_USER_ID}
 
 
 *** Keywords ***
