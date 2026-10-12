@@ -11,6 +11,7 @@ Library    String
 Library    Collections
 Library    PlayerStateSeed.py
 Library    ParallelRequests.py
+Library    FrontendBuild.py
 Variables    settings.py
 
 

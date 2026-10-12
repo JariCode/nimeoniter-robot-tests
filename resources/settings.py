@@ -25,6 +25,11 @@ TEST_EMAIL_DOMAIN = os.getenv("TEST_EMAIL_DOMAIN", "")
 # Test database for the player-state seed helper. Never the real database.
 TEST_MONGODB_URI = os.getenv("TEST_MONGODB_URI", "")
 
+
+# Frontend build folder (frontend/dist) for the .htaccess test (TC13-003).
+# Optional: only that test needs it.
+FRONTEND_DIST = os.getenv("FRONTEND_DIST", "").rstrip("/\\")
+
 # Browser: chromium, firefox or webkit. HEADLESS=true hides the browser,
 # SLOWMO slows down every action.
 BROWSER = os.getenv("BROWSER", "")
