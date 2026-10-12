@@ -1,0 +1,17 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Robot Framework test results
+output.xml
+log.html
+report.html
+
+# Browser / Playwright generated files
+browser/
+playwright-log.txt
+
+# Python cache
+__pycache__/
+*.pyc
