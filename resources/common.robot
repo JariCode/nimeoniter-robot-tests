@@ -46,18 +46,41 @@ Enter Verification Code If Asked
     [Documentation]    Clerk asks for an email code when signing up ("Verify your
     ...    email") or when signing in from a new device ("Check your email").
     ...    Every Robot session looks like a new device. The code is typed only
-    ...    once Clerk has sent it: the "Resend" countdown is shown and network
-    ...    traffic has settled. A code typed too early is rejected. The test code
-    ...    comes from the .env file and only works for +clerk_test addresses in
-    ...    Clerk's development instance.
+    ...    once Clerk has sent it, which shows as the "Resend (30)" countdown.
+    ...    If Clerk has not sent the code (the plain "Resend" link is shown, or
+    ...    Clerk answers "You need to send a verification code"), the code is
+    ...    sent with the Resend link and typed again, up to three times. The test
+    ...    code comes from the .env file and only works for +clerk_test addresses
+    ...    in Clerk's development instance.
     [Arguments]    ${code}=${CLERK_TEST_CODE}
     ${asked}=    Run Keyword And Return Status
     ...    Wait For Elements State    text=/Check your email|Verify your email/    visible    timeout=5s
-    IF    ${asked}
-        Wait For Elements State    text=/Resend \\(\\d+\\)/    visible    timeout=15s
+    IF    not ${asked}    RETURN
+    FOR    ${attempt}    IN RANGE    3
+        ${sent}=    Run Keyword And Return Status
+        ...    Wait For Elements State    text=/Resend \\(\\d+\\)/    visible    timeout=10s
+        IF    not ${sent}
+            Click    .cl-formResendCodeLink
+            Wait For Elements State    text=/Resend \\(\\d+\\)/    visible    timeout=15s
+        END
         Wait For Load State    networkidle    timeout=10s
+        IF    ${attempt} > 0    Run Keyword And Ignore Error    Clear Verification Code
         Keyboard Input    type    ${code}
+        ${refused}=    Run Keyword And Return Status
+        ...    Wait For Elements State    text=/send a verification code before/    visible    timeout=3s
+        IF    not ${refused}    RETURN
+        Log    Clerk had not sent the code yet (attempt ${attempt}), sending it again    WARN
     END
+    Fail    Clerk did not accept the verification code after three attempts
+
+Clear Verification Code
+    [Documentation]    Empties Clerk's six code boxes and puts the cursor in the
+    ...    first one, so the code can be typed from the start.
+    Click    .cl-otpCodeFieldInput >> nth=5
+    FOR    ${i}    IN RANGE    6
+        Keyboard Key    press    Backspace
+    END
+    Click    .cl-otpCodeFieldInput >> nth=0
 
 Wait For Game To Load
     [Documentation]    Waits until the signed-in player's game state has loaded and
@@ -232,7 +255,6 @@ Reload Game
     ...    user interface shows the game state just seeded in the database.
     Reload
     Wait For Game To Load
-
 
 Get Task Catalog
     [Documentation]    Returns the task catalog from the backend's public game rules.

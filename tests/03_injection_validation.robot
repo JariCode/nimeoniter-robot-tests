@@ -7,8 +7,8 @@ Documentation    Suite 3: Injection, XSS and input validation.
 ...    never runs. Also tests error handling, unknown routes and methods, and the
 ...    rate limits. Test inputs are based on attack techniques described by OWASP.
 ...    Covers test cases TC03-001 - TC03-021.
-...    TC03-010 makes real OpenAI calls (tag ai). TC03-018 needs the backend's
-...    original general rate limit and is run separately (tag rate-limit).
+...    TC03-010 makes real OpenAI calls (tag ai). TC03-018 and TC03-019 need the
+...    backend's original rate limits and are run separately (tag rate-limit).
 ...    TC03-019 uses its own temporary player, so the standard test account's
 ...    companion is not locked by the AI rate limit.
 ...    Precondition: the .env test account exists in the app.
@@ -331,7 +331,8 @@ AI rate limit returns 429 per player
     ...    through. The requests use an unknown mode, which the limiter counts but
     ...    the backend rejects before any OpenAI call, so nothing is paid. A
     ...    temporary player is used so the standard account is not locked.
-    [Tags]    api    security
+    ...    Tagged rate-limit: it needs the backend's original AI limit (20).
+    [Tags]    api    security    rate-limit
     ${temp_context}=    New Context    viewport={'width': 1280, 'height': 900}
     Set Test Variable    ${TEMP_CONTEXT}    ${temp_context}
     New Page    ${APP_URL}
