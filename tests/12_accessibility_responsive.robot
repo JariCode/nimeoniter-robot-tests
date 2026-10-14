@@ -62,6 +62,42 @@ A task can be completed and undone with the keyboard
     Keyboard Key    press    Space
     Wait For Elements State    .mission-check >> nth=0 >> text=☐    visible    timeout=5s
 
+Task picker and companion work with the keyboard
+    [Documentation]    TC12-001. Expected result: a task can be chosen in the task
+    ...    picker with Tab and Enter, and Escape closes the picker and returns
+    ...    focus to the "+ Add task" button. The companion opens with Enter,
+    ...    Escape closes it, and focus returns to the companion button. The
+    ...    player is first marked as already greeted, so opening the companion
+    ...    makes no OpenAI call.
+    [Tags]    browser
+    Seed Accessible Player
+    Reload Game
+    Evaluate JavaScript    ${None}    () => sessionStorage.setItem('nimeoniter_greeted', '1')
+    Focus    .add-task-button
+    Keyboard Key    press    Enter
+    Wait For Elements State    .add-task-modal    visible    timeout=5s
+    Keyboard Key    press    Tab
+    ${on_task}=    Evaluate JavaScript    ${None}
+    ...    () => document.activeElement.classList.contains('add-task-option-button')
+    Should Be True    ${on_task}    msg=Tab from the search field did not reach the first task
+    ${name}=    Evaluate JavaScript    ${None}
+    ...    () => document.activeElement.querySelector('.add-task-option-name').textContent
+    Keyboard Key    press    Enter
+    Wait For Elements State    .mission-name >> text=${name}    visible    timeout=5s
+    Keyboard Key    press    Escape
+    Wait For Elements State    .add-task-modal    detached    timeout=5s
+    ${on_add}=    Evaluate JavaScript    ${None}
+    ...    () => document.activeElement.classList.contains('add-task-button')
+    Should Be True    ${on_add}    msg=Focus did not return to the "+ Add task" button
+    Focus    .assistant__figure
+    Keyboard Key    press    Enter
+    Wait For Elements State    .assistant__chat    visible    timeout=5s
+    Keyboard Key    press    Escape
+    Wait For Elements State    .assistant__chat    detached    timeout=5s
+    ${on_figure}=    Evaluate JavaScript    ${None}
+    ...    () => document.activeElement.classList.contains('assistant__figure')
+    Should Be True    ${on_figure}    msg=Focus did not return to the companion button
+
 Icon-only buttons have accessible names
     [Documentation]    TC12-003. Expected result: the buttons that show only an icon
     ...    have accessible names: Remove task, Previous day, Next day, Close (task
