@@ -196,6 +196,7 @@ Wrong verification code at sign-up is rejected
     Click    .cl-footerActionLink
     Fill Text    input[name="emailAddress"]    ${email}
     Fill Text    input[name="password"]    ${TEST_PASSWORD}
+    Accept Legal Documents If Asked
     Click    .cl-formButtonPrimary
     Enter Verification Code If Asked    ${WRONG_CODE}
     Wait For Elements State    text=Incorrect code >> nth=0    visible    timeout=10s

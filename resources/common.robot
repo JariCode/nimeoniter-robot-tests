@@ -20,6 +20,9 @@ Variables    settings.py
 # signed-in player's game state has loaded
 ${LANDING_BUTTON}    .landing-start
 ${GAME_LOADED}       .base-status
+# Clerk's legal consent checkbox on the sign-up form. It is only shown when
+# "Require express consent to legal documents" is on in the Clerk instance.
+${LEGAL_CHECKBOX}    .cl-formFieldCheckboxInput
 
 
 *** Keywords ***
@@ -119,15 +122,25 @@ Generate Test Email
 
 Sign Up
     [Documentation]    Opens the sign-in window, switches to sign-up and creates an
-    ...    account. Clerk's email verification is passed with the test code.
+    ...    account. The Terms of Service and Privacy Policy are accepted if Clerk
+    ...    asks for consent. Clerk's email verification is passed with the test
+    ...    code.
     [Arguments]    ${email}    ${password}=${TEST_PASSWORD}
     Open Sign In
     Click    .cl-footerActionLink
     Fill Text    input[name="emailAddress"]    ${email}
     Fill Text    input[name="password"]    ${password}
+    Accept Legal Documents If Asked
     Click    .cl-formButtonPrimary
     Enter Verification Code If Asked
     Wait For Game To Load
+
+Accept Legal Documents If Asked
+    [Documentation]    Ticks the consent checkbox of Clerk's sign-up form. If the
+    ...    Clerk instance does not ask for consent, there is no checkbox and
+    ...    nothing is done.
+    ${asked}=    Get Element Count    ${LEGAL_CHECKBOX}
+    IF    ${asked} > 0    Check Checkbox    ${LEGAL_CHECKBOX}
 
 Open User Menu
     [Documentation]    Opens Clerk's user menu from the avatar in the top-right corner.
