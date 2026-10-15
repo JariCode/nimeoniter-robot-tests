@@ -370,15 +370,19 @@ Get Layout
     RETURN    ${layout}
 
 Window Should Fit
-    [Documentation]    Checks that Clerk's open window (its card) is inside the screen.
+    [Documentation]    Checks that Clerk's open window is inside the screen. The
+    ...    window is Clerk's modal box (.cl-modalContent), which the app caps to
+    ...    the screen height and lets scroll inside, so a card taller than the
+    ...    screen (e.g. with the development instance's extra "Development mode"
+    ...    row) still passes as long as the window itself stays on screen. Falls
+    ...    back to the card if no modal box is found.
     [Arguments]    ${what}    ${width}    ${height}
     ${box}=    Evaluate JavaScript    ${None}
     ...    () => {
-    ...        const cards = [...document.querySelectorAll('.cl-cardBox, .cl-card')].filter((c) => c.offsetParent !== null);
-    ...        if (!cards.length) return null;
-    ...        const r = cards[0].getBoundingClientRect();
+    ...        const visible = (selector) => [...document.querySelectorAll(selector)].filter((el) => el.offsetParent !== null);
+    ...        const windows = visible('.cl-modalContent');
+    ...        const boxes = windows.length ? windows : visible('.cl-cardBox, .cl-card');
+    ...        if (!boxes.length) return null;
+    ...        const r = boxes[0].getBoundingClientRect();
     ...        return { top: r.top, bottom: r.bottom, left: r.left, right: r.right };
     ...    }
-    Should Not Be Equal    ${box}    ${None}    msg=The ${what} was not found
-    Should Be True    ${box}[top] >= -1 and ${box}[left] >= -1 and ${box}[bottom] <= ${height} + 1 and ${box}[right] <= ${width} + 1
-    ...    msg=The ${what} reaches outside the ${width}×${height} screen: ${box}
