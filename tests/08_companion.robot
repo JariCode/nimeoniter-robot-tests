@@ -218,12 +218,20 @@ Companion outfit matches the world and the holiday
     ...    are checked in a separate browser session whose clock is set to
     ...    Christmas Eve and to Valentine's Day.
     [Tags]    browser
-    Set Time    2026-11-15 12:00:00    fixed
     FOR    ${index}    ${jacket}    ${costume}    IN    -1    jacket    ${EMPTY}    10    jacketCity    city    20    jacketSpace    space
         Seed Companion Player    baseStageIndex=${{int($index)}}    totalXp=${400000}
-        Reload Game
+        Close Context
+        New Context    viewport={'width': 1280, 'height': 900}    storageState=${SIGNED_IN_STATE}
+        New Page    about:blank
+        Set Time    2026-11-15 12:00:00    fixed
+        Go To    ${APP_URL}
+        Wait For Game To Load
         Run Keyword And Continue On Failure    Outfit Should Be    ${jacket}    ${costume}
     END
+    Close Context
+    New Context    viewport={'width': 1280, 'height': 900}    storageState=${SIGNED_IN_STATE}
+    New Page    ${APP_URL}
+    Wait For Game To Load
     Seed Companion Player
     Check Holiday Outfits In Own Session
 
@@ -236,6 +244,8 @@ Sign In For Companion Tests
     Sign In
     ${user_id}=    Get Current User Id
     Set Suite Variable    ${USER_ID}    ${user_id}
+    ${state}=    Save Storage State
+    Set Suite Variable    ${SIGNED_IN_STATE}    ${state}
     ${config}=    GET    ${BACKEND_URL}/api/config
     ${ids}=    Evaluate    [a['id'] for a in $config.json()['achievements']]
     Set Suite Variable    ${ALL_ACHIEVEMENTS}    ${ids}
