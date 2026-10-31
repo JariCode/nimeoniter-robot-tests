@@ -16,3 +16,5 @@ playwright-log.txt
 # Python cache
 __pycache__/
 *.pyc
+# VS Code settings
+.vscode/
