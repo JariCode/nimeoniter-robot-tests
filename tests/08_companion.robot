@@ -218,6 +218,7 @@ Companion outfit matches the world and the holiday
     ...    are checked in a separate browser session whose clock is set to
     ...    Christmas Eve and to Valentine's Day.
     [Tags]    browser
+    Set Time    2026-11-15 12:00:00    fixed
     FOR    ${index}    ${jacket}    ${costume}    IN    -1    jacket    ${EMPTY}    10    jacketCity    city    20    jacketSpace    space
         Seed Companion Player    baseStageIndex=${{int($index)}}    totalXp=${400000}
         Reload Game

@@ -42,7 +42,7 @@ Level-up pop-up closes by itself and on click
 Achievement pop-up shows its details and closes by itself and on click
     [Documentation]    TC10-002. Expected result: the achievement pop-up shows the
     ...    title, the description and the reward (First Step, "Complete your first
-    ...    task", "+15 XP · 1 food") and closes by itself after about 3 seconds.
+    ...    task", "+15 XP · 1 wood · 1 stone · 1 food") and closes by itself after about 3 seconds.
     ...    The next time an achievement is unlocked, clicking the pop-up closes it
     ...    at once.
     [Tags]    browser
@@ -55,7 +55,7 @@ Achievement pop-up shows its details and closes by itself and on click
     Wait For Elements State    .achievement    visible    timeout=5s
     Get Text    .achievement-title    ==    First Step
     Get Text    .achievement-desc    ==    Complete your first task
-    Get Text    .achievement-reward    ==    +15 XP · 1 food
+    Get Text    .achievement-reward    ==    +15 XP · 1 wood · 1 stone · 1 food
     Pop-up Should Close By Itself    .achievement    3
     ${run}=    Catalog Mission    run    ${today}    ${False}
     Seed Pop-up Player    first_task    missions=${{ [$run] }}

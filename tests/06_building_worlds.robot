@@ -52,7 +52,7 @@ Next building and its cost are shown with colours
     Get Text    .base-build-label    ==    NEXT: WELL
     Cost Should Be    0    🪵 10/10    cost-ok
     Cost Should Be    1    🪨 4/5    cost-missing
-    Cost Should Be    2    🍖 30/25    cost-ok
+    Cost Should Be    2    🍖 30/30    cost-ok
 
 Build button is disabled when resources are short
     [Documentation]    TC06-002. Expected result: when the level is high enough but
@@ -100,7 +100,7 @@ Building deducts the cost and adds the building to the world
     Should Be True    ${shapes_after} > ${shapes_before}    msg=The well was not drawn in the world
     ${state}=    Get Game State
     Should Be Equal As Integers    ${state}[baseStageIndex]    0
-    Should Be Equal    ${state}[resources]    ${{ {'wood': 5, 'stone': 5, 'food': 5} }}
+    Should Be Equal    ${state}[resources]    ${{ {'wood': 5, 'stone': 5, 'food': 0} }}
 
 Backend rejects a build without the level or the resources
     [Documentation]    TC06-005. Expected result: the backend refuses a build when the
@@ -139,7 +139,7 @@ Two simultaneous builds pay the cost only once
     ...    chance to happen.
     [Tags]    api
     FOR    ${round}    IN RANGE    5
-        ${resources}=    Create Dictionary    wood=${10}    stone=${5}    food=${25}
+        ${resources}=    Create Dictionary    wood=${10}    stone=${5}    food=${30}
         Seed Builder Player    totalXp=${1000}    resources=${resources}
         ${token}=    Get Session Token
         ${codes}=    Send Parallel Requests    POST    ${BACKEND_URL}/api/state/build    ${token}    2

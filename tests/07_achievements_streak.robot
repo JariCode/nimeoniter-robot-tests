@@ -26,7 +26,7 @@ First completed task shows First Step and adds its reward
     [Documentation]    TC07-001. Expected result: a new player completes their first
     ...    task in the browser. The First Step achievement pop-up appears with its
     ...    reward, and the reward is added on top of the task's own reward:
-    ...    walk 10 XP + 2 wood, First Step 15 XP + 1 food.
+    ...    walk 10 XP + 2 wood, First Step 15 XP + 1 wood + 1 stone + 1 food.
     [Tags]    browser    api
     Reset Player State    ${USER_ID}
     Reload Game
@@ -37,10 +37,10 @@ First completed task shows First Step and adds its reward
     Wait For Elements State    .achievement    visible    timeout=5s
     Get Text    .achievement-label    ==    ACHIEVEMENT UNLOCKED
     Get Text    .achievement-title    ==    First Step
-    Get Text    .achievement-reward    ==    +15 XP · 1 food
+    Get Text    .achievement-reward    ==    +15 XP · 1 wood · 1 stone · 1 food
     ${state}=    Get Game State
     Should Be Equal As Integers    ${state}[totalXp]    25
-    Should Be Equal    ${state}[resources]    ${{ {'wood': 2, 'stone': 0, 'food': 1} }}
+    Should Be Equal    ${state}[resources]    ${{ {'wood': 3, 'stone': 1, 'food': 1} }}
     Should Be Equal    ${state}[unlockedAchievements]    ${{ ['first_task'] }}
 
 An achievement is granted only once
@@ -64,7 +64,7 @@ An achievement is granted only once
 Undoing a task does not take back an achievement reward
     [Documentation]    TC07-003. Expected result: undoing the task that earned First
     ...    Step takes back only the task's own reward (10 XP, 2 wood). First Step's
-    ...    reward (15 XP, 1 food) and the achievement itself stay.
+    ...    reward (15 XP, 1 wood, 1 stone, 1 food) and the achievement itself stay.
     [Tags]    api
     ${today}=    Today Key
     ${walk}=    Catalog Mission    walk    ${today}    ${False}
@@ -73,7 +73,7 @@ Undoing a task does not take back an achievement reward
     ${undone}=    Signed In Request    POST    /api/state/tasks/${walk}[id]/uncomplete
     Should Be Equal As Integers    ${undone.status_code}    200
     Should Be Equal As Integers    ${undone.json()}[totalXp]    15
-    Should Be Equal    ${undone.json()}[resources]    ${{ {'wood': 0, 'stone': 0, 'food': 1} }}
+    Should Be Equal    ${undone.json()}[resources]    ${{ {'wood': 1, 'stone': 1, 'food': 1} }}
     Should Contain    ${undone.json()}[unlockedAchievements]    first_task
 
 Achievement reward that crosses a level grants the level achievement too

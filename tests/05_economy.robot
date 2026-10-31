@@ -165,7 +165,7 @@ Undoing a task that paid for a building removes the building
     ${today}=    Today Key
     ${walk}=    Catalog Mission    walk    ${today}    ${False}
     ${missions}=    Create List    ${walk}
-    ${start}=    Create Dictionary    wood=${8}    stone=${5}    food=${25}
+    ${start}=    Create Dictionary    wood=${8}    stone=${5}    food=${30}
     Seed Economy Player    totalXp=${200}    resources=${start}    missions=${missions}
     Complete Task Through API    ${walk}[id]    ${today}
     ${built}=    Signed In Request    POST    /api/state/build
@@ -214,7 +214,7 @@ Simultaneous undo, completion and build keep the state consistent
         ${walk}=    Catalog Mission    walk    ${today}    ${True}
         ${run}=    Catalog Mission    run    ${today}    ${False}
         ${missions}=    Create List    ${walk}    ${run}
-        ${start}=    Create Dictionary    wood=${10}    stone=${5}    food=${25}
+        ${start}=    Create Dictionary    wood=${10}    stone=${5}    food=${30}
         ${start_xp}=    Set Variable    ${110}
         Seed Economy Player    totalXp=${start_xp}    resources=${start}    missions=${missions}
         ${token}=    Get Session Token
